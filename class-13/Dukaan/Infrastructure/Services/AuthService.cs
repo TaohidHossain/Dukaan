@@ -1,9 +1,11 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Dukaan.Application.Dtos;
 using Dukaan.Domain.Interfaces;
 using Dukaan.Infrastructure.Data.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace Dukaan.Infrastructure.Services;
 
@@ -26,5 +28,23 @@ public class AuthService(UserManager<Merchant> userManager, IConfiguration confi
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
         var credential = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(jwtSettings["DurationInMinutes"]!));
+
+        var claims = new[]
+        {
+            new System.Security.Claims.Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new System.Security.Claims.Claim(JwtRegisteredClaimNames.Email, user.Email!),
+            new System.Security.Claims.Claim("tanant_id", user.TenantId.ToString())
+        };
+
+        var token = new JwtSecurityToken(
+            claims: claims,
+            expires: expiration,
+            signingCredentials: credential
+        );
+
+        return new AuthResponseDTO(
+            new JwtSecurityTokenHandler().WriteToken(token),
+            expiration
+        );
     }
 }
