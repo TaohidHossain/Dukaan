@@ -1,6 +1,6 @@
 namespace Dukaan.Application.Dtos;
 
-public record AuthResponseDto(
+public record AuthResponseDTO(
         string Token,
         DateTime Expirtation
     );

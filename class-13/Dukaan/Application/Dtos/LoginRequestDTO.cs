@@ -1,6 +1,6 @@
 namespace Dukaan.Application.Dtos;
 
-public record LoginRequestDto(
+public record LoginRequestDTO(
         string Email,
         string Password
     );
